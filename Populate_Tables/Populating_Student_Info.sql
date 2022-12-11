@@ -101,7 +101,7 @@ AS
 		WHEN LEN(Student_Code_Unfixed) > 9 THEN Student_Code_Unfixed / 4	--This isnures all the student codes are the same length
 		WHEN LEN(Student_Code_Unfixed) = 8 THEN Student_Code_Unfixed * 10
 		WHEN LEN(Student_Code_Unfixed) = 7 THEN Student_Code_Unfixed * 100
-		     ELSE Student_Code_Unfixed
+		ELSE Student_Code_Unfixed
 	 END AS Student_Code
     FROM Uncleaned_Code
    )
@@ -109,7 +109,7 @@ AS
 AS
    (
     SELECT
-	 First_Name
+		 First_Name
         ,Middle_Name
         ,Last_name
         ,ROW_NUMBER() OVER(ORDER BY NEWID()) AS Rank_N
@@ -235,7 +235,7 @@ FROM #Months
 ORDER BY Year_Date, Month_Num asc, Day_Num asc
 ;
 
-SELECT Top 1 *
+SELECT *
 FROM #Calendar
 ORDER BY NEWID()
 
