@@ -152,91 +152,20 @@ FROM Collection
 
 
 --ADDING BIRTHDAYS
+--Divides NEWID value by 6570, and then adds that many days to beginning date, to create random birthday
 
---Creating Months Table
-
-DROP TABLE IF EXISTS #Months
-CREATE TABLE #Months
-	(
-	 Month_Num Char(2)
-	)
-
-INSERT INTO #Months (Month_Num)
-VALUES  (01)
-	   ,(02)
-	   ,(03)
-	   ,(04)
-	   ,(05)
-	   ,(06)
-	   ,(07)
-	   ,(08)
-	   ,(09)
-	   ,(10)
-	   ,(11)
-	   ,(12)
+UPDATE Student_Info
+SET Birth_Date = DATEADD(Day, ABS(CHECKSUM(NEWID()) % 6570), '2000-01-01')
 ;
 
---Creating Day Number Tables
+--This database is pretending it is for Norfolk Public School Systems in Virginia.
 
-DROP TABLE IF EXISTS #Month_Days
-CREATE TABLE #Month_Days
-	(
-	 Day_Num Char(2)
-	)
-
-INSERT INTO #Month_Days
-VALUES  (01)    ,(02)	 ,(03)
-	   ,(04)    ,(05)    ,(06)
-	   ,(07)    ,(08)    ,(09)
-	   ,(10)    ,(11)    ,(12)
-	   ,(13)    ,(14)    ,(15)
-	   ,(16)    ,(17)    ,(18)
-	   ,(19)    ,(20)    ,(21)
-	   ,(22)    ,(23)    ,(24)
-	   ,(25)    ,(26)    ,(27)
-	   ,(28)    ,(29)    ,(30)
-	   ,(31)
+UPDATE Student_Info
+SET City = 'Norfolk'
 ;
 
---Creating Years 
+--Norfolk is in VA, so all students get VA as state
 
-DROP TABLE IF EXISTS #Years
-CREATE TABLE #Years
-	(
-	 Year_Date Char(4)
-	)
-
-INSERT INTO #Years
-VALUES  (1979),	   (1980),    (1981),
-		(1982),	   (1983),    (1984),
-		(1975),	   (1986),    (1987),
-		(1988),	   (1989),    (1990),
-		(1991),	   (1992),    (1993),
-		(1994),	   (1995),    (1996),
-		(1997),	   (1998),    (1999),
-		(2000),	   (2001),    (2002),
-		(2003),	   (2004),    (2005),
-		(2006),	   (2007),    (2008),
-		(2009),	   (2010),    (2011),
-		(2012),	   (2013),    (2014),
-		(2015),	   (2016),    (2017)
+UPDATE Student_Info
+SET StateID = 'VA'
 ;
-
-
---Create cartesian table
-
-DROP TABLE IF EXISTS #Calendar
-
-SELECT Month_Num, Day_Num, Year_Date
-INTO #Calendar
-FROM #Months
-	CROSS JOIN #Month_Days
-	CROSS JOIN #Years
-ORDER BY Year_Date, Month_Num asc, Day_Num asc
-;
-
-SELECT *
-FROM #Calendar
-ORDER BY NEWID()
-
-
