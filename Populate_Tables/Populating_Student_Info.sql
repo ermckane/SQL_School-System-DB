@@ -169,3 +169,6 @@ SET City = 'Norfolk'
 UPDATE Student_Info
 SET StateID = 'VA'
 ;
+
+UPDATE Student_Info
+SET Zipcode = 
