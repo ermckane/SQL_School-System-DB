@@ -6,9 +6,13 @@ CREATE TABLE #Google (
 	zipcode varchar(5)
 );
 
+INSERT INTO #Google (ID)
+VALUES (1), (2), (3), (4), (5)
+
 UPDATE #Google
-SET zipcode = (20000 + ABS(CHECKSUM(NEWID()) % 24)
+SET zipcode = (20000 + ABS(CHECKSUM(NEWID()) % 24))
 ; 
 
 SELECT *
-FROM Student_Info
+FROM #Google
+;

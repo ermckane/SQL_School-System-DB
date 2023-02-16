@@ -170,5 +170,27 @@ UPDATE Student_Info
 SET StateID = 'VA'
 ;
 
+--Give every student a random zipcode from 23500 - 23524
+
 UPDATE Student_Info
-SET Zipcode = 
+SET ZipCode = (23500 + ABS(CHECKSUM(NEWID()) % 24))
+; 
+
+--Adding randome address names
+WITH numbers(numberValue) AS
+	(
+		SELECT 0
+		UNION ALL
+		SELECT numberValue+1
+		FROM numbers
+		WHERE numberValue < 10000			
+	)
+SELECT * 
+FROM numbers
+WHERE numberValue > 999
+OPTION (MAXRECURSION 10000)
+;
+
+
+SELECT * 
+FROM Student_Info
