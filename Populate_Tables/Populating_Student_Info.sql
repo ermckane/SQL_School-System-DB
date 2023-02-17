@@ -161,7 +161,7 @@ SET Birth_Date = DATEADD(Day, ABS(CHECKSUM(NEWID()) % 6570), '2000-01-01')
 --This database is pretending it is for Norfolk Public School Systems in Virginia.
 
 UPDATE Student_Info
-SET City = 'Norfolk'
+SET City = 'NORFOLK'
 ;
 
 --Norfolk is in VA, so all students get VA as state
@@ -176,7 +176,24 @@ UPDATE Student_Info
 SET ZipCode = (23500 + ABS(CHECKSUM(NEWID()) % 24))
 ; 
 
---Adding randome address names
+--Creating numbers 1000 - 9999 and cross joining them with random address names.
+DROP TABLE IF EXISTS #Name_Insert
+;
+
+CREATE TABLE #Name_Insert (StreetName varchar(50))
+;
+
+--Inserting data from table of random street names
+BULK INSERT #Name_Insert
+FROM 'C:\Users\ermck\OneDrive\Documents\Program_Work\GitHub\sql_school-system-db\Data\Street_Names.csv'
+WITH
+	(
+	FIELDTERMINATOR = ',',
+	ROWTERMINATOR = '\n'
+	)
+;
+
+--Cross joining table of street name with recursive CTE to get street names with house numbers
 WITH numbers(numberValue) AS
 	(
 		SELECT 0
@@ -185,12 +202,42 @@ WITH numbers(numberValue) AS
 		FROM numbers
 		WHERE numberValue < 10000			
 	)
-SELECT * 
+SELECT TOP 20000 * INTO #PreConcat_Addresses --Limiting to 20000 since that is the number of student there are in Student_Info table
 FROM numbers
+CROSS JOIN #Name_Insert
 WHERE numberValue > 999
-OPTION (MAXRECURSION 10000)
+ORDER BY NEWID()
+OPTION (MAXRECURSION 10000) --Needed to increase recursion limit to get all numbers from 1000 - 9999, since default is 100 recursions
+;
+
+DROP TABLE IF EXISTS #Student_Addresses
+;
+
+WITH StudentCode --Selecting the Student_Code column from Student_Info in order to join to address to later UPDATE Student_Info
+AS 
+	(SELECT Student_Code AS Student_Code_2
+			,ROW_NUMBER() OVER(ORDER BY NEWID()) AS Rank_1
+	FROM Student_Info
+	)
+,Addresses 
+AS
+	(SELECT CONCAT(numberValue, ' ', StreetName) as Address_2 --CONCATING Street_Name and numberValue to create street name and house number into one colums
+			,ROW_NUMBER() OVER(ORDER BY NEWID()) AS Rank_2
+	FROM #PreConcat_Addresses
+	)
+
+SELECT A.Address_2, SC.Student_Code_2 INTO #Student_Addresses --Joining Student_Code with addresses
+FROM Addresses as A
+INNER JOIN StudentCode as SC
+	ON A.Rank_2 = SC.Rank_1
 ;
 
 
-SELECT * 
-FROM Student_Info
+--Updating Student_Code to hace unqiue address for each student
+UPDATE Student_Info
+SET Address = T2.Address_2
+FROM #Student_Addresses AS T2
+WHERE Student_Code = T2.Student_Code_2
+;
+
+SELECT * FROM Student_Info
