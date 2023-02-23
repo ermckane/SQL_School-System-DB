@@ -1,0 +1,5 @@
+-- Plan for populating School_Enrollment
+-- 1) Take DOB of from each Student in Student_Info and subtract it from current date
+-- 2) Group zipcodes for middle school and high schools.
+-- 3) If they are between certain ages 18-15, they are in High School, 14-12 Middle School, and 11-5 Elementary
+-- 4) Put them in the correct school based off of correpsonding zipcode.
