@@ -8,6 +8,7 @@ CREATE TABLE School_Info
   ,City Varchar(50)
   ,State Char(2)
   ,Zipcode Varchar (11)
+  ,Phone_Number char(12)
   ,Description Text
   ,Date_Modified Datetime2(3)
   )
