@@ -20,18 +20,28 @@ SELECT si.student_code AS Student_Code, sci.school_code as School_Code, DATEADD(
 SELECT DATEDIFF(year, Birth_Date, GETDATE())
  + 0 AS Age
 FROM Student_Info
-
+;
 
 --Determine level of school by subtracting date of birth from current date
-SELECT
-CASE 
-	WHEN DATEDIFF(year, Birth_Date, GETDATE()) > 18 THEN 'Graduated'
-	WHEN DATEDIFF(year, Birth_Date, GETDATE()) <= 18 
-		AND DATEDIFF(year, Birth_Date, GETDATE()) >= 15 THEN 'High School'
-	WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 12
-		AND DATEDIFF(year, Birth_Date, GETDATE()) <= 14 THEN 'Middle School'
-	WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 5
-		AND DATEDIFF(year, Birth_Date, GETDATE()) <= 12 THEN 'Elementary School'
-	ELSE 'Error'
-	END
-FROM Student_Info
+WITH Making_School_Type
+AS (
+	SELECT *,
+	CASE 
+		WHEN DATEDIFF(year, Birth_Date, GETDATE()) > 18 THEN 'Graduated'
+		WHEN DATEDIFF(year, Birth_Date, GETDATE()) <= 18 
+			AND DATEDIFF(year, Birth_Date, GETDATE()) >= 15 THEN 'High School'
+		WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 12
+			AND DATEDIFF(year, Birth_Date, GETDATE()) <= 14 THEN 'Middle School'
+		WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 5
+			AND DATEDIFF(year, Birth_Date, GETDATE()) <= 12 THEN 'Elementary School'
+		ELSE 'Error'
+		END as School_Type
+	FROM Student_Info
+)
+SELECT mst.*, sci.School_Name
+FROM Making_School_Type as mst
+LEFT JOIN School_Info as sci
+	ON mst.ZipCode = sci.Zipcode
+	AND mst.School_Type = sci.School_Type
+
+
