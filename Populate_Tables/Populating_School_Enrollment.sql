@@ -23,25 +23,49 @@ FROM Student_Info
 ;
 
 --Determine level of school by subtracting date of birth from current date
-WITH Making_School_Type
+WITH Grouping_Student_Info
 AS (
-	SELECT *,
-	CASE 
-		WHEN DATEDIFF(year, Birth_Date, GETDATE()) > 18 THEN 'Graduated'
-		WHEN DATEDIFF(year, Birth_Date, GETDATE()) <= 18 
-			AND DATEDIFF(year, Birth_Date, GETDATE()) >= 15 THEN 'High School'
-		WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 12
-			AND DATEDIFF(year, Birth_Date, GETDATE()) <= 14 THEN 'Middle School'
-		WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 5
-			AND DATEDIFF(year, Birth_Date, GETDATE()) <= 12 THEN 'Elementary School'
-		ELSE 'Error'
+	SELECT *
+		,CASE 
+			WHEN DATEDIFF(year, Birth_Date, GETDATE()) > 18 THEN 'Graduated'
+			WHEN DATEDIFF(year, Birth_Date, GETDATE()) <= 18 
+				AND DATEDIFF(year, Birth_Date, GETDATE()) >= 15 THEN 'High School'
+			WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 12
+				AND DATEDIFF(year, Birth_Date, GETDATE()) <= 14 THEN 'Middle School'
+			WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 5
+				AND DATEDIFF(year, Birth_Date, GETDATE()) <= 12 THEN 'Elementary School'
+			ELSE 'Error'
 		END as School_Type
+		,CASE	
+			WHEN (Zipcode >= 23501 AND Zipcode <= 23505) THEN 'Group 1'
+			WHEN (Zipcode >= 23506 AND Zipcode <= 23510) THEN 'Group 2'
+			WHEN (Zipcode >= 23511 AND Zipcode <= 23515) THEN 'Group 3'
+			WHEN (Zipcode >= 23516 AND Zipcode <= 23520) THEN 'Group 4'
+			WHEN (Zipcode >= 23521 AND Zipcode <= 23525) THEN 'Group 5'
+			ELSE 'Other'
+		END as Zipcode_Group
 	FROM Student_Info
 )
+, Grouping_School_Info
+AS (
+	SELECT *
+		,CASE	
+			WHEN (Zipcode >= 23501 AND Zipcode <= 23505) THEN 'Group 1'
+			WHEN (Zipcode >= 23506 AND Zipcode <= 23510) THEN 'Group 2'
+			WHEN (Zipcode >= 23511 AND Zipcode <= 23515) THEN 'Group 3'
+			WHEN (Zipcode >= 23516 AND Zipcode <= 23520) THEN 'Group 4'
+			WHEN (Zipcode >= 23521 AND Zipcode <= 23525) THEN 'Group 5'
+			ELSE 'Other'
+		END as Zipcode_Group 
+	FROM School_Info
+   )
+, 
+
+/*
 SELECT mst.*, sci.School_Name
 FROM Making_School_Type as mst
 LEFT JOIN School_Info as sci
 	ON mst.ZipCode = sci.Zipcode
 	AND mst.School_Type = sci.School_Type
-
+*/
 

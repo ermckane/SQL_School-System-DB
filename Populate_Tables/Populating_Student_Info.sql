@@ -173,8 +173,9 @@ SET StateID = 'VA'
 --Give every student a random zipcode from 23500 - 23524
 
 UPDATE Student_Info
-SET ZipCode = (23500 + ABS(CHECKSUM(NEWID()) % 24))
+SET ZipCode = (23501 + ABS(CHECKSUM(NEWID()) % 24))
 ; 
+
 
 --Creating numbers 1000 - 9999 and cross joining them with random address names.
 DROP TABLE IF EXISTS #Name_Insert
@@ -241,3 +242,5 @@ WHERE Student_Code = T2.Student_Code_2
 ;
 
 SELECT * FROM Student_Info
+
+ 
