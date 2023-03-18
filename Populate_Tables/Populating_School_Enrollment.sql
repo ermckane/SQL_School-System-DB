@@ -45,7 +45,7 @@ AS (
 			ELSE 'Other'
 		END as Zipcode_Group
 	FROM Student_Info
-)
+	)
 , Grouping_School_Info
 AS (
 	SELECT *
@@ -59,7 +59,24 @@ AS (
 		END as Zipcode_Group 
 	FROM School_Info
    )
-, 
+/*, Creating_Enrollment_Date
+AS (
+	SELECT *
+		,CASE
+			WHEN School_Type = 'Elementary School' THEN DATEADD(year, 5, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
+			WHEN School_Type = 'Middle School' THEN DATEADD(year, 11, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
+			WHEN School_Type = 'High School' THEN DATEADD(year, 15, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
+			ELSE '0000/00/00'
+		END as Enrollment_Date
+	FROM Grouping_Student_Info
+   )*/
+SELECT */*, ced.Enrollment_Date*/
+FROM grouping_student_info AS st
+INNER JOIN grouping_school_info AS sch
+	ON st.School_Type = sch.School_Type
+	AND st.zipcode_group = sch.zipcode_group
+/*JOIN Creating_Enrollment_Date as ced
+	ON st.student_code = ced.student_code*/
 
 /*
 SELECT mst.*, sci.School_Name
@@ -69,3 +86,5 @@ LEFT JOIN School_Info as sci
 	AND mst.School_Type = sci.School_Type
 */
 
+
+SELECT * FROM Student_Info
