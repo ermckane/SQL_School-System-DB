@@ -5,17 +5,6 @@
 -- 4) Put them in the correct school based off of correpsonding zipcode.
 
 
-/*
-DROP TABLE IF EXISTS #Enrollment_Temp
-;
-
-SELECT si.student_code AS Student_Code, sci.school_code as School_Code, DATEADD(year, 5, si.Birth_Date) as Enrollment_Date
-	FROM Student_Info AS si
-	INNER JOIN School_Info AS sci
-		ON si.ZipCode = sci.Zipcode
-;
-*/
-
 --Calculate age of of students in Student_Info
 SELECT DATEDIFF(year, Birth_Date, GETDATE())
  + 0 AS Age
@@ -61,37 +50,33 @@ AS (
    )
 , Combining_Student_School
 AS (
-	SELECT Student_Code, St_School_Type, St_Zipcode_Group, St_ZipCode, Sch_School_Type, School_Code, Sch_Zipcode, Sch_Zipcode_Group
+	SELECT Student_Code, Birth_Date, St_School_Type, St_Zipcode_Group, St_ZipCode, Sch_School_Type, School_Code, Sch_Zipcode, Sch_Zipcode_Group
 	FROM Grouping_Student_Info AS st
 	LEFT JOIN Grouping_School_Info AS sch
 		ON St_Zipcode_Group = Sch_Zipcode_Group
 		AND St_School_Type = Sch_School_Type
+	WHERE (St_School_Type = 'Elementary School' AND St_Zipcode = Sch_Zipcode)
+		OR (St_School_Type IN ('Middle School', 'High School', 'Graduated', 'Error'))
+		OR St_School_Type IS NULL
 	)
-/*, Creating_Enrollment_Date
+, Creating_Enrollment_Date
 AS (
 	SELECT *
 		,CASE
 			WHEN St_School_Type = 'Elementary School' THEN DATEADD(year, 5, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
 			WHEN St_School_Type = 'Middle School' THEN DATEADD(year, 11, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
 			WHEN St_School_Type = 'High School' THEN DATEADD(year, 15, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
-			ELSE '0000/00/00'
+			ELSE NULL
 		END as Enrollment_Date
-	FROM Grouping_Student_Info
-   )*/
-SELECT *
 	FROM Combining_Student_School
-	WHERE (St_School_Type = 'Elementary School' AND St_Zipcode = Sch_Zipcode)
-	OR (St_School_Type IN ('Middle School', 'High School', 'Graduated', 'Error'))
-	OR St_School_Type IS NULL
+   )
+
+SELECT *
+	FROM Creating_Enrollment_Date
+
 	
 /*JOIN Creating_Enrollment_Date as ced
 	ON st.student_code = ced.student_code*/
 
-/*
-SELECT mst.*, sci.School_Name
-FROM Making_School_Type as mst
-LEFT JOIN School_Info as sci
-	ON mst.ZipCode = sci.Zipcode
-	AND mst.School_Type = sci.School_Type
-*/
+
  
