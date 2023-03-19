@@ -25,7 +25,7 @@ FROM Student_Info
 --Determine level of school by subtracting date of birth from current date
 WITH Grouping_Student_Info
 AS (
-	SELECT *
+	SELECT Student_Code, Birth_Date, ZipCode AS St_ZipCode
 		,CASE 
 			WHEN DATEDIFF(year, Birth_Date, GETDATE()) > 18 THEN 'Graduated'
 			WHEN DATEDIFF(year, Birth_Date, GETDATE()) <= 18 
@@ -35,7 +35,7 @@ AS (
 			WHEN DATEDIFF(year, Birth_Date, GETDATE()) >= 5
 				AND DATEDIFF(year, Birth_Date, GETDATE()) <= 12 THEN 'Elementary School'
 			ELSE 'Error'
-		END as School_Type
+		END AS St_School_Type
 		,CASE	
 			WHEN (Zipcode >= 23501 AND Zipcode <= 23505) THEN 'Group 1'
 			WHEN (Zipcode >= 23506 AND Zipcode <= 23510) THEN 'Group 2'
@@ -43,12 +43,12 @@ AS (
 			WHEN (Zipcode >= 23516 AND Zipcode <= 23520) THEN 'Group 4'
 			WHEN (Zipcode >= 23521 AND Zipcode <= 23525) THEN 'Group 5'
 			ELSE 'Other'
-		END as Zipcode_Group
+		END AS St_Zipcode_Group
 	FROM Student_Info
 	)
 , Grouping_School_Info
 AS (
-	SELECT *
+	SELECT School_Type AS Sch_School_Type, Zipcode AS Sch_Zipcode, School_Code
 		,CASE	
 			WHEN (Zipcode >= 23501 AND Zipcode <= 23505) THEN 'Group 1'
 			WHEN (Zipcode >= 23506 AND Zipcode <= 23510) THEN 'Group 2'
@@ -56,25 +56,34 @@ AS (
 			WHEN (Zipcode >= 23516 AND Zipcode <= 23520) THEN 'Group 4'
 			WHEN (Zipcode >= 23521 AND Zipcode <= 23525) THEN 'Group 5'
 			ELSE 'Other'
-		END as Zipcode_Group 
+		END AS Sch_Zipcode_Group 
 	FROM School_Info
    )
+, Combining_Student_School
+AS (
+	SELECT Student_Code, St_School_Type, St_Zipcode_Group, St_ZipCode, Sch_School_Type, School_Code, Sch_Zipcode, Sch_Zipcode_Group
+	FROM Grouping_Student_Info AS st
+	LEFT JOIN Grouping_School_Info AS sch
+		ON St_Zipcode_Group = Sch_Zipcode_Group
+		AND St_School_Type = Sch_School_Type
+	)
 /*, Creating_Enrollment_Date
 AS (
 	SELECT *
 		,CASE
-			WHEN School_Type = 'Elementary School' THEN DATEADD(year, 5, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
-			WHEN School_Type = 'Middle School' THEN DATEADD(year, 11, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
-			WHEN School_Type = 'High School' THEN DATEADD(year, 15, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
+			WHEN St_School_Type = 'Elementary School' THEN DATEADD(year, 5, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
+			WHEN St_School_Type = 'Middle School' THEN DATEADD(year, 11, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
+			WHEN St_School_Type = 'High School' THEN DATEADD(year, 15, DATEADD(MONTH, (9 - MONTH(Birth_Date)), Birth_Date))
 			ELSE '0000/00/00'
 		END as Enrollment_Date
 	FROM Grouping_Student_Info
    )*/
-SELECT */*, ced.Enrollment_Date*/
-FROM grouping_student_info AS st
-INNER JOIN grouping_school_info AS sch
-	ON st.School_Type = sch.School_Type
-	AND st.zipcode_group = sch.zipcode_group
+SELECT *
+	FROM Combining_Student_School
+	WHERE (St_School_Type = 'Elementary School' AND St_Zipcode = Sch_Zipcode)
+	OR (St_School_Type IN ('Middle School', 'High School', 'Graduated', 'Error'))
+	OR St_School_Type IS NULL
+	
 /*JOIN Creating_Enrollment_Date as ced
 	ON st.student_code = ced.student_code*/
 
@@ -85,6 +94,4 @@ LEFT JOIN School_Info as sci
 	ON mst.ZipCode = sci.Zipcode
 	AND mst.School_Type = sci.School_Type
 */
-
-
-SELECT * FROM Student_Info
+ 
